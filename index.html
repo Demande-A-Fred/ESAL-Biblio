@@ -1,106 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-   <style>
-       textarea {
-  width : 98vw;
-  height : 20vh;
-/*
+
+    <style>
+        textarea {
+            width: 98vw;
+            height: 45vh;
+            background-color: transparent;
+            /*
   tab-size :8vw;
   */
-}
+        }
+        
+        #textarea2 {
+            background-color: lightgrey;
+            background-color: transparent;
+        }
+        
+        #outil {
+            margin: 0.5em 2em;
+            height: 2vh;
+        }
+        
+        .champs {
+            background-color: lightgray;
+            padding: 6px;
+            margin: 2px;
+            border-radius: 4px;
+        }
+        
+        .separateur {
+            background-color: darkgray;
+            padding: 3px;
+            margin: 2px;
+            border-radius: 4px;
+            min-width: 1.5em;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        #recherche {
+            margin-left: 10%;
+            display: inline;
+        }
+        
+        #svg1 {
+            display: block;
+            position: absolute;
+            top: 1em;
+            width: 100vw;
+            height: 44vh;
+            opacity: 0.2;
+            z-index: -100;
+        }
+        
+        #svg2 {
+            display: inline-block;
+            position: absolute;
+            left: 0.5em;
+            height: 2vh;
+        }
+        
+        #svg3 {
+            display: block;
+            position: absolute;
+            top: calc(47vh + 2.5em);
+            width: 100vw;
+            height: 44vh;
+            opacity: 0.2;
+            z-index: -100;
+        }
+    </style>
+    <script>
+        function replaceText() {
+            // Récupération des éléments textarea et input
+            var textarea1 = document.getElementById("textarea1");
+            var textarea2 = document.getElementById("textarea2");
+            var replaceChars = document.getElementById("replaceChars").value;
+            var replaced = "\t";
 
-#textarea2 {
-  background-color : lightgrey;
-}
+            // Récupération du contenu de textarea1
+            var content = textarea1.value;
+            var content2 = "";
+            // Convertir la chaîne en tableau pour remplacer chaque caractère
+            var charsArray = Array.from(replaceChars);
 
-</style>
-    <script>function replaceText() {
-  // Récupération des éléments textarea et input
-  var textarea1 = document.getElementById("textarea1");
-  var textarea2 = document.getElementById("textarea2");
-  var replaceChars = document.getElementById("replaceChars").value;
-  var replaced = "\t";
-  
-  // Récupération du contenu de textarea1
-  var content = textarea1.value;
-  var content2 = "";
-  // Convertir la chaîne en tableau pour remplacer chaque caractère
-  var charsArray = Array.from(replaceChars);
-  
-  // Remplacement des caractères choisis
-  var i = false;
-  var j = 0;
-  var pos=-1;
+            // Remplacement des caractères choisis
+            var i = false;
+            var j = 0;
+            var pos = -1;
 
-  while (i === false) {
-    var char = new RegExp(charsArray[j]);
-    if (charsArray[j]==='N') {
-      char = /\n/;
-    }
-    pos = content.search(char);
-    if (pos===-1) {
-      content2+=content.substring(0);
-      console.log("rien trouvé // ");
-      i=true;
-    }
-    else {
-      content2+=content.substring(0,pos)+replaced;
-      console.log("remplace :"+content.substring(0,pos+1)+" par "+content.substring(0,pos)+replaced + " // p="+pos);
-      content = content.substring(pos+1);
-      j++;
-      if (j===charsArray.length) {
-        j=0;
-      }
-    
-    } //else
-   //  textarea2.value = content2;
-  }//while
-  // Placement du nouveau contenu dans textarea2
-  textarea2.value = content2;
-}
+            while ((i === false) && (charsArray.length > 0)) {
+                var char = new RegExp(charsArray[j]);
+                if (charsArray[j] === 'N') {
+                    char = /\n/;
+                }
+                pos = content.search(char);
+                if (pos === -1) {
+                    content2 += content.substring(0);
+                    console.log("rien trouvé // ");
+                    i = true;
+                } else {
+                    content2 += content.substring(0, pos) + replaced;
+                    console.log("remplace :" + content.substring(0, pos + 1) + " par " + content.substring(0, pos) + replaced + " // p=" + pos);
+                    content = content.substring(pos + 1);
+                    j++;
+                    if (j === charsArray.length) {
+                        j = 0;
+                    }
 
-function copyPaste() {
-  // Get the text field
-  var copyText = document.getElementById("textarea2");
+                } //else
+                //  textarea2.value = content2;
+            } //while
+            // Placement du nouveau contenu dans textarea2
+            textarea2.value = content2;
+        }
 
-  // Select the text field
-  copyText.select();
-  copyText.setSelectionRange(0, 99999); // For mobile devices
+        function makeRecherche() {
+            _result = "";
+            var replaceChars = document.getElementById("replaceChars").value;
+            var charsArray = Array.from(replaceChars);
+            if (charsArray.length > 0) {
+                _result += "<span class='champs'>Champs1</span>"
+                for (var i = 0; i < charsArray.length; i++) {
+                    if (charsArray[i] === 'N') {
+                        _result += "<span class='separateur'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-arrow-return-left' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5z'/></svg></span>";
+                    } else {
+                        _result += "<span class='separateur'>" + charsArray[i] + "</span>";
+                    }
 
-   // Copy the text inside the text field
-  navigator.clipboard.writeText(copyText.value);
+                    _result += "<span class='champs'>Champs" + (i + 2) + "</span>";
+                }
 
-  
-}
+            }
+            document.getElementById("recherche").innerHTML = _result;
+        }
 
- 
+        function copyPaste() {
+            // Get the text field
+            var copyText = document.getElementById("textarea2");
+
+            // Select the text field
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(copyText.value);
+
+
+        }
     </script>
 </head>
+
 <body>
-    <textarea id="textarea1">
-nom prenom, titre; année
-mémoire, etudiant
-nom2 prenom2, titre2; année2
-mémoire2, etudiant2
-nom3 prenom3, titre3; année3
-mémoire3, etudiant3
-</textarea>
-<br>
-<label for="replaceChars">Caractères à remplacer :</label>
-<input type="text" id="replaceChars" title="Entrer les signes qui séparent les champs. La lettre N pour indiquer le retour à la ligne comme séparateur" onchange="replaceText()"
-       >
-<button onclick="replaceText()">Remplacer les caractères</button>
-<button onclick="copyPaste()">Copier le résultat dans le clipboard</button>
-<br>
-<textarea id="textarea2" onclick="copyPaste()" title="Cliquer le texte pour le copier"></textarea>
+    <textarea id="textarea1" class="bi bi-1-circle" placeholder="copier le texte à découper ici"></textarea>
+    <svg id="svg1" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-1-circle" viewBox="0 0 16 16">
+        <path d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8Zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0ZM9.283 4.002V12H7.971V5.338h-.065L6.072 6.656V5.385l1.899-1.383h1.312Z"/>
+      </svg>
+    <div id="outil">
+        <svg id="svg2" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-2-circle" viewBox="0 0 16 16">
+            <path d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8Zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0ZM6.646 6.24v.07H5.375v-.064c0-1.213.879-2.402 2.637-2.402 1.582 0 2.613.949 2.613 2.215 0 1.002-.6 1.667-1.287 2.43l-.096.107-1.974 2.22v.077h3.498V12H5.422v-.832l2.97-3.293c.434-.475.903-1.008.903-1.705 0-.744-.557-1.236-1.313-1.236-.843 0-1.336.615-1.336 1.306Z"/>
+          </svg>
+        <label for="replaceChars">Séparateurs :</label>
+        <input type="text" id="replaceChars" title="Entrer les signes qui séparent les champs. La lettre N pour indiquer le retour à la ligne comme séparateur" onchange="replaceText()" oninput="makeRecherche()">
+        <button onclick="replaceText()">Bim!</button>
+        <button onclick="copyPaste()">Copier</button>
+        <div id="recherche"></div>
+    </div>
+    <textarea id="textarea2" onclick="copyPaste()" title="Cliquer le texte pour le copier" placeholder="le résultat s'affiche ici"></textarea>
+    <svg id="svg3" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-3-circle" viewBox="0 0 16 16">
+        <path d="M7.918 8.414h-.879V7.342h.838c.78 0 1.348-.522 1.342-1.237 0-.709-.563-1.195-1.348-1.195-.79 0-1.312.498-1.348 1.055H5.275c.036-1.137.95-2.115 2.625-2.121 1.594-.012 2.608.885 2.637 2.062.023 1.137-.885 1.776-1.482 1.875v.07c.703.07 1.71.64 1.734 1.917.024 1.459-1.277 2.396-2.93 2.396-1.705 0-2.707-.967-2.754-2.144H6.33c.059.597.68 1.06 1.541 1.066.973.006 1.6-.563 1.588-1.354-.006-.779-.621-1.318-1.541-1.318Z"/>
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0ZM1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8Z"/>
+      </svg>
 
-
-<!-- 
+    <!-- 
 nom prenom, titre, année, mémoire, etudiant
 nom2 prenom2, titre2, année2, mémoire2, etudiant2
 nom3 prenom3, titre3, année3, mémoire3, etudiant3
@@ -118,4 +196,5 @@ mémoire3, etudiant3
 
 -->
 </body>
+
 </html>
