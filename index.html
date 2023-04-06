@@ -33,6 +33,41 @@
         #textarea2 {
             background-color: lightgrey;
             background-color: transparent;
+            height: 100%;
+            border: 1px solid lightgray;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        
+        .header,
+        .row {
+            display: flex;
+            flex-direction: row;
+            box-sizing: border-box;
+        }
+        
+        .row div,
+        .header div {
+            flex-basis: 100%;
+            /*    border: 1px solid black; */
+            box-sizing: border-box;
+        }
+        
+        .header div {
+            border: solid black;
+            border-width: 0px 1px 1px 0px;
+        }
+        
+        .row div {
+            border: dotted black;
+            border-width: 0 1px 1px 0;
+        }
+        
+        .first {
+            flex-basis: 10% !important;
+            border: solid black !important;
+            border-width: 0 1px 1px 0 !important;
         }
         
         #outil {
@@ -144,6 +179,58 @@
         }
     </style>
     <script>
+        var arrayText = [];
+        var arrayAllText = [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            _biblio = getLocal("biblio1");
+            if (_biblio.length > 0) {
+                console.log("cookie init lecture");
+                document.getElementById("textarea1").value = _biblio;
+            } else {
+                console.log("cookie init vide");
+                document.getElementById("textarea1").value = "nom prenom, titre; année, mémoire, etudiant\nnom2 prenom2, titre2; année2, mémoire2, etudiant2\nnom3 prenom3, titre3; année3, mémoire3, etudiant3";
+            }
+            _biblio = getLocal("recherche");
+            if (_biblio.length > 0) {
+                console.log("cookie init lecture");
+                document.getElementById("replaceChars").value = _biblio;
+            } else {}
+            _biblio = getLocal("biblio3");
+            if (_biblio.length > 0) {
+                console.log("cookie init lecture 3");
+                arrayAllText = JSON.parse(_biblio);
+                // document.getElementById("textarea3").value = _biblio;
+            } else {}
+
+            makeRecherche();
+            replaceText();
+            showTextArea3();
+            document.getElementById("textarea1").addEventListener("input", () => {
+                setLocal("biblio1", document.getElementById("textarea1").value)
+                    // setCookie("biblio1", document.getElementById("textarea1").value, 1);
+                replaceText();
+            });
+            document.getElementById("replaceChars").addEventListener("keyup", (e) => {
+
+                if (e.key == "Enter") {
+                    var _pos = e.target.selectionStart;
+                    var _tt = Array.from(document.getElementById("replaceChars").value);
+                    _tt.splice(_pos, 0, '↵');
+                    document.getElementById("replaceChars").value = _tt.join('');
+                    document.getElementById("replaceChars").setSelectionRange(_pos + 1, _pos + 1);
+                }
+                setLocal("recherche", document.getElementById("replaceChars").value);
+                makeRecherche();
+                replaceText();
+            });
+            document.getElementById("replaceChars").addEventListener("click", (e) => {
+                setLocal("recherche", document.getElementById("replaceChars").value);
+                makeRecherche();
+                replaceText();
+            });
+        });
+
         function replaceText() {
             // Récupération des éléments textarea et input
             var textarea1 = document.getElementById("textarea1");
@@ -161,31 +248,87 @@
             var i = false;
             var j = 0;
             var pos = -1;
-
+            arrayText = [];
+            var _arrayText = [];
             while ((i === false) && (charsArray.length > 0)) {
                 var char = new RegExp(charsArray[j]);
-                if (charsArray[j] === 'N') {
+                if (charsArray[j] === '↵') {
                     char = /\n/;
                 }
                 pos = content.search(char);
                 if (pos === -1) {
-                    content2 += content.substring(0);
-                    console.log("rien trouvé // ");
+                    // fin de recherche
+                    //  content2 += content.substring(0);
+                    console.log("f:" + content);
+                    _arrayText.push(content);
+                    console.log(_arrayText);
+                    arrayText.push(JSON.parse(JSON.stringify(_arrayText)));
+                    //  console.log("rien trouvé // ");
                     i = true;
                 } else {
-                    content2 += content.substring(0, pos) + replaced;
-                    console.log("remplace :" + content.substring(0, pos + 1) + " par " + content.substring(0, pos) + replaced + " // p=" + pos);
-                    content = content.substring(pos + 1);
+                    //content2 += content.substring(0, pos) + replaced;     
+                    _arrayText.push(content.substring(0, pos));
+                    // console.log("remplace :" + content.substring(0, pos + 1) + " par " + content.substring(0, pos) + replaced + " // p=" + pos);
+                    /// console.log("_arraytext :" + _arrayText);
+                    content = content.substring(pos + 1).trimStart();
                     j++;
                     if (j === charsArray.length) {
                         j = 0;
+                        arrayText.push(JSON.parse(JSON.stringify(_arrayText)));
+                        _arrayText = [];
                     }
-
                 } //else
                 //  textarea2.value = content2;
             } //while
             // Placement du nouveau contenu dans textarea2
-            textarea2.value = content2;
+            //   textarea2.value = content2;
+            // arrayText.push(Array.from(_arrayText);
+            // arrayText.push(JSON.parse(JSON.stringify(_arrayText)));
+            //  setLocal("biblio2", arrayText);
+            showTextArea2();
+            //textarea2.value = arrayText.join("***");
+        }
+
+        function makeText(_array) {
+            _content = "";
+            for (var i = 0; i < _array.length; i++) {
+                _content += _array[i].join('\t') + '\n';
+            }
+            return (_content);
+        }
+
+        function showTextArea2() {
+            var textarea2 = document.getElementById("textarea2");
+            //textarea2.value = makeText(arrayText);
+            _content = "<div class='header'>";
+            for (var j = 0; j <= (arrayText.length > 0 ? arrayText[0].length : -1); j++) {
+                if (j === 0) {
+                    _content += "<div class='first'>" + j + "</div>"
+                } else {
+                    _content += "<div>" + j + "</div>"
+                }
+                //_content += "<div>" + j + "</div>"
+            }
+            _content += "</div>";
+            for (var i = 0; i < arrayText.length; i++) {
+                _content += "<div class='row'>";
+                _array = arrayText[i];
+                for (var j = 0; j < _array.length; j++) {
+                    if (j === 0) {
+                        _content += "<div class='first'>" + (i + 1) + "</div>"
+                    }
+                    _content += "<div>" + _array[j] + "</div>"
+
+                }
+                _content += "</div>";
+            }
+
+            textarea2.innerHTML = _content;
+        }
+
+        function showTextArea3() {
+            var textarea3 = document.getElementById("textarea3");
+            textarea3.value = makeText(arrayAllText);
         }
 
         function makeRecherche() {
@@ -195,27 +338,38 @@
             if (charsArray.length > 0) {
                 _result += "<span class='champs'>Champs1</span>"
                 for (var i = 0; i < charsArray.length; i++) {
-                    if (charsArray[i] === 'N') {
+                    if (charsArray[i] === '↵') {
                         _result += "<span class='separateur'><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-arrow-return-left' viewBox='0 0 16 16'><path fill-rule='evenodd' d='M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5z'/></svg></span>";
                     } else {
                         _result += "<span class='separateur'>" + charsArray[i] + "</span>";
                     }
+                    if ((i == (charsArray.length - 1)) && (charsArray[i] === '↵')) {
 
-                    _result += "<span class='champs'>Champs" + (i + 2) + "</span>";
+                    } else {
+                        _result += "<span class='champs'>Champs" + (i + 2) + "</span>";
+                    }
                 }
 
             }
             document.getElementById("recherche").innerHTML = _result;
         }
+        /*
+                function copyTA2() {
+                    copyPaste("textarea2");
+                }
 
-        function copyTA2() {
-            copyPaste("textarea2");
+                function copyTA3() {
+                    copyPaste("textarea3");
+                }
+                */
+        function copyArrayText() {
+            navigator.clipboard.writeText(makeText(arrayText));
         }
 
-        function copyTA3() {
-            copyPaste("textarea3");
+        function copyArrayAllText() {
+            navigator.clipboard.writeText(makeText(arrayAllText));
         }
-
+        /*
         function copyPaste(_ta) {
 
             var copyText = document.getElementById(_ta);
@@ -226,18 +380,24 @@
             }
 
         }
-
+*/
         function effacerTA1() {
             collerTA("textarea1", "");
+            setLocal("biblio1", "");
         }
 
         function effacerTA2() {
-            collerTA("textarea2", "");
+            //collerTA("textarea2", "");
+            arrayText = [];
+            //   setLocal("biblio2", arrayText);
+            showTextArea2();
         }
 
-
         function pasteTA1() {
-            navigator.clipboard.readText().then(_valeur => (collerTA("textarea1", _valeur)));
+            navigator.clipboard.readText().then(_valeur => {
+                collerTA("textarea1", _valeur);
+                replaceText();
+            });
 
         }
 
@@ -246,7 +406,48 @@
         }
 
         function ajouter() {
-            document.getElementById("textarea3").append(document.getElementById("textarea2").value + "\n");
+            // document.getElementById("textarea3").append(document.getElementById("textarea2").value + "\n");
+            arrayAllText.push(...arrayText);
+            setLocal("biblio3", JSON.stringify(arrayAllText));
+            showTextArea3();
+            // setLocal("biblio3", document.getElementById("textarea3").value);
+
+
+        }
+
+        function getCookie(name) {
+            var cname = name + "=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var ca = decodedCookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(cname) == 0) {
+                    return c.substring(cname.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        function setCookie(name, value, exp_days) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exp_days * 24 * 60 * 60 * 1000));
+            var expires = "expires=" + d.toGMTString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+            console.log("Cookie save : " + name + "=" + value + ";" + expires + ";path=/");
+        }
+
+        function setLocal(_name, _value) {
+            localStorage.setItem(_name, _value);
+
+        }
+
+        function getLocal(_name) {
+            var _result = localStorage.getItem(_name) || "";
+            return _result;
+
         }
     </script>
 </head>
@@ -272,7 +473,7 @@
           </svg>
                 </div>
                 <label for="replaceChars">Séparateurs </label>
-                <input type="text" id="replaceChars" title="Entrer les signes qui séparent les champs. La lettre N pour indiquer le retour à la ligne comme séparateur" onchange="replaceText()" oninput="makeRecherche()">
+                <input type="text" id="replaceChars" title="Entrer les signes qui séparent les champs. La lettre N pour indiquer le retour à la ligne comme séparateur">
                 <button onclick="replaceText()">Bim!</button>
                 <!--  <button onclick="copyPaste()">Copier</button> 
         -->
@@ -280,7 +481,11 @@
             <div id="recherche"></div>
         </div>
         <div class="bloc">
-            <textarea id="textarea2" readonly="readonly" onclick="copyTA2()" title="Résultat de la découpe du bloc 1. Cliquer pour copier. Bouton Ajouter pour l'ajouter au bloc 4" placeholder="Le texte découpé du bloc 1 s'affiche ici. Cliquer sur Bim pour découper"></textarea>
+            <div id="textarea2" readonly="readonly" onclick="copyArrayText()" title="Résultat de la découpe du bloc 1. Cliquer pour copier. Bouton Ajouter pour l'ajouter au bloc 4" placeholder="Le texte découpé du bloc 1 s'affiche ici. Cliquer sur Bim pour découper">
+            </div>
+            <!--
+            <textarea id="textarea2" readonly="readonly" onclick="copyArrayText()" title="Résultat de la découpe du bloc 1. Cliquer pour copier. Bouton Ajouter pour l'ajouter au bloc 4" placeholder="Le texte découpé du bloc 1 s'affiche ici. Cliquer sur Bim pour découper"></textarea>
+        -->
             <svg id="svg3" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-3-circle svg" viewBox="0 0 16 16">
         <path d="M7.918 8.414h-.879V7.342h.838c.78 0 1.348-.522 1.342-1.237 0-.709-.563-1.195-1.348-1.195-.79 0-1.312.498-1.348 1.055H5.275c.036-1.137.95-2.115 2.625-2.121 1.594-.012 2.608.885 2.637 2.062.023 1.137-.885 1.776-1.482 1.875v.07c.703.07 1.71.64 1.734 1.917.024 1.459-1.277 2.396-2.93 2.396-1.705 0-2.707-.967-2.754-2.144H6.33c.059.597.68 1.06 1.541 1.066.973.006 1.6-.563 1.588-1.354-.006-.779-.621-1.318-1.541-1.318Z"/>
         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0ZM1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8Z"/>
@@ -288,21 +493,24 @@
             <div class="barre_bouton">
                 <div class="bouton" title="Ajouter le contenu au bloc 4" onclick="ajouter()">Ajouter</div>
                 <div class="bouton" onclick="effacerTA2()">Effacer</div>
-                <div class="bouton" onclick="copyTA2()">Copier</div>
+                <div class="bouton" onclick="copyArrayText()">Copier</div>
 
 
             </div>
         </div>
         <div class="bloc">
-            <textarea id="textarea3" onclick="copyTA3()" title="Cliquer pour copier" placeholder="Contient les ajouts du bloc 3 au dessus"></textarea>
+            <textarea id="textarea3" onclick="copyArrayAllText()" title="Cliquer pour copier" placeholder="Contient les ajouts du bloc 3 au dessus"></textarea>
             <svg id="svg4" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-4-circle svg" viewBox="0 0 16 16">
             <path d="M7.519 5.057c.22-.352.439-.703.657-1.055h1.933v5.332h1.008v1.107H10.11V12H8.85v-1.559H4.978V9.322c.77-1.427 1.656-2.847 2.542-4.265ZM6.225 9.281v.053H8.85V5.063h-.065c-.867 1.33-1.787 2.806-2.56 4.218Z"/>
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0ZM1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8Z"/>
         </svg>
             <div class="barre_bouton">
-                <div class="bouton" onclick="copyTA3()">Copier</div>
+                <div class="bouton" onclick="copyArrayAllText()">Copier</div>
 
             </div>
+        </div>
+        <div>
+
         </div>
     </div>
     <!-- 
