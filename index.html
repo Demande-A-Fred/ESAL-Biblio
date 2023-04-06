@@ -30,7 +30,7 @@
   */
         }
         
-        #textarea2 {
+        #textarea2, #textarea3 {
             background-color: lightgrey;
             background-color: transparent;
             height: 100%;
@@ -297,11 +297,9 @@
             return (_content);
         }
 
-        function showTextArea2() {
-            var textarea2 = document.getElementById("textarea2");
-            //textarea2.value = makeText(arrayText);
+        function makeTable(_arrayVar) {
             _content = "<div class='header'>";
-            for (var j = 0; j <= (arrayText.length > 0 ? arrayText[0].length : -1); j++) {
+            for (var j = 0; j <= (_arrayVar.length > 0 ? _arrayVar[0].length : -1); j++) {
                 if (j === 0) {
                     _content += "<div class='first'>" + j + "</div>"
                 } else {
@@ -310,9 +308,9 @@
                 //_content += "<div>" + j + "</div>"
             }
             _content += "</div>";
-            for (var i = 0; i < arrayText.length; i++) {
+            for (var i = 0; i < _arrayVar.length; i++) {
                 _content += "<div class='row'>";
-                _array = arrayText[i];
+                _array = _arrayVar[i];
                 for (var j = 0; j < _array.length; j++) {
                     if (j === 0) {
                         _content += "<div class='first'>" + (i + 1) + "</div>"
@@ -322,13 +320,19 @@
                 }
                 _content += "</div>";
             }
+            return _content;
+        }
+        function showTextArea2() {
+            var textarea2 = document.getElementById("textarea2");
+            //textarea2.value = makeText(arrayText);
+           
 
-            textarea2.innerHTML = _content;
+            textarea2.innerHTML = makeTable(arrayText);
         }
 
         function showTextArea3() {
             var textarea3 = document.getElementById("textarea3");
-            textarea3.value = makeText(arrayAllText);
+            textarea3.innerHTML = makeTable(arrayAllText);
         }
 
         function makeRecherche() {
@@ -499,7 +503,11 @@
             </div>
         </div>
         <div class="bloc">
+            <!--
             <textarea id="textarea3" onclick="copyArrayAllText()" title="Cliquer pour copier" placeholder="Contient les ajouts du bloc 3 au dessus"></textarea>
+            -->
+            <div id="textarea3" onclick="copyArrayAllText()" title="Cliquer pour copier" placeholder="Contient les ajouts du bloc 3 au dessus"></div>
+           
             <svg id="svg4" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-4-circle svg" viewBox="0 0 16 16">
             <path d="M7.519 5.057c.22-.352.439-.703.657-1.055h1.933v5.332h1.008v1.107H10.11V12H8.85v-1.559H4.978V9.322c.77-1.427 1.656-2.847 2.542-4.265ZM6.225 9.281v.053H8.85V5.063h-.065c-.867 1.33-1.787 2.806-2.56 4.218Z"/>
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0ZM1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8Z"/>
